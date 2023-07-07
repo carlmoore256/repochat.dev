@@ -1,46 +1,55 @@
 import { Box, Text } from "@chakra-ui/react";
 // import { IRepositoryInfo } from "../models/IRepositoryInfo";
-import { IRepositoryInfo } from "../services/github";
-import { Skeleton, SkeletonCircle, SkeletonText, Heading } from '@chakra-ui/react';
+import { IRepositoryInfo } from "../services/githubAPI";
+import { Skeleton, SkeletonCircle, SkeletonText, Heading, Divider, Card, CardHeader, CardBody, Stack, StackDivider } from '@chakra-ui/react';
 import "../styles/sidebar.css"
 
 export interface RepositoryCardProps {
     repo: IRepositoryInfo | null;
+    onRepositorySelect: (repository: IRepositoryInfo) => void;
 }
 
 export function RepositoryCard(props: RepositoryCardProps) {
-    const { repo } = props;
+    const { repo, onRepositorySelect } = props;
 
     return (
-        <Box  className="repo-card prevent-select" borderRadius="lg">
+        <>
             {repo ? 
-                <RepositoryCardActive repo={repo}/> : 
+                <RepositoryCardActive repo={repo} onRepositorySelect={onRepositorySelect}/> : 
                 <RepositoryCardSkeleton /> // displays skeleton if content hasn't yet loaded
             }
-        </Box>
+        </>
     );
 }
 
 function RepositoryCardSkeleton() {
     return (
-        <Box borderWidth="1px" borderRadius="lg" padding={3} marginY={2} width="100%">
+        <Card borderWidth="1px" borderRadius="lg" padding={3} marginY={2} width="100%">
             <Skeleton height="20px" />
             <Skeleton height="20px" />
             <Skeleton height="20px" />
-        </Box>
+        </Card>
     );
 }
 
-function RepositoryCardActive(props : {repo: IRepositoryInfo}) {
-    const { repo } = props;
+function RepositoryCardActive(props : {repo: IRepositoryInfo, onRepositorySelect: (repository: IRepositoryInfo) => void}) {
+    const { repo, onRepositorySelect } = props;
 
     return (
-        <Box>
-            <Heading size="md">{repo.name}</Heading>
-            <Text>{repo.owner.login}</Text>
-            <Text fontWeight="bold">{repo.name}</Text>
-            <Text>{repo.description}</Text>
-        </Box>
+        <Card className="prevent-select clickable" onClick={(e) => onRepositorySelect(repo)}>
+            <CardHeader>
+                <Heading size="sm">{repo.name}</Heading>
+                <Text pt='2'>{repo.owner.login}</Text>
+            </CardHeader>
+            <CardBody>
+                <Stack divider={<StackDivider/>} spacing={2}>
+
+                    <Text fontSize='sm'>{repo.description}</Text>
+
+                </Stack>
+
+            </CardBody>
+        </Card>
     );
 
 

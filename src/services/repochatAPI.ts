@@ -1,5 +1,5 @@
 // import { IRepositoryInfo } from "../models/IRepositoryInfo";
-import { IRepositoryInfo } from "./github";
+import { IRepositoryInfo } from "./githubAPI";
 import { REPOCHAT_API_URL } from "../constants";
 import { getRequest, postRequest, postRequestSSE } from "./apiHelpers";
 import { IMessage } from "../models/IMessage";
@@ -47,12 +47,11 @@ export function newSession(repository : IRepositoryInfo) : Promise<ISessionInfo>
 }
 
 
-export function sendMessage(message : IMessage, sessionInfo : ISessionInfo, onMessage : (data : any) => void) : Promise<IMessage> {
+export function sendMessage(message : IMessage, sessionInfo : ISessionInfo, onMessage : (data : any) => void) {
     postRequestSSE(getAPIRoute('chat/message'), {
         message : message.content,
         userId : sessionInfo.userId
     }, (data) => {
-        console.log("Received message", data);
         onMessage(data);
     });
 }

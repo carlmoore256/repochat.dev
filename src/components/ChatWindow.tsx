@@ -6,7 +6,7 @@ import "../styles/chat-window.css";
 import { SpeechSynthesizer, getDistinctVoices } from "./SpeechSynthesizer";
 
 import { ChatSessionContext, SetChatSessionContext } from "../context/ChatSessionContext";
-import { sendMessage } from "../services/repochat";
+import { sendMessage } from "../services/repochatAPI";
 
 const VOICES = getDistinctVoices(3);
 const SYNTHESIZERS = new Map<MessageRole, SpeechSynthesizer>([
@@ -22,11 +22,13 @@ function ChatWindow() {
 
   const chatSession = useContext(ChatSessionContext);
 
+  // const [currentChatSessionId, setCurrentChatSessionId] = useState<string>("");
   const [ongoingResponse, setOngoingResponse] = useState<IMessage | null>(null);
 
   const [chatInput, setChatInput] = useState<string>("");
+
   const [messages, setMessages] = useState<IMessage[]>([{
-    content: DEFAULT_MESSAGE,
+    content: chatSession ? "" : "Please select a repository on the left",
     role: MessageRole.AI
   },
 ]);
@@ -41,77 +43,58 @@ function ChatWindow() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
-        setMessages((messages) => {
-          const newMessage: IMessage = {
-            content: "Hello, please add a new repository to the left, and ask me a question about it!",
-            role: MessageRole.AI
-          };
-          return [...messages, newMessage];
-        });
+        console.log("Enter key pressed");
+        handleSendMessage(chatInput);
       }
     };
-
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [chatInput]);
 
-
-  // const handleSendMessage = useCallback((content : string) => {
-  //   if (!chatSession) return;
-  //   const newMessage: IMessage = {
-  //     content,
-  //     role: MessageRole.Human
-  //   };
-  //   setMessages((messages) => {
-  //     return [...messages, newMessage];
-  //   });
-
-  //   console.log("Sending message", newMessage);
-  //   sendMessage(newMessage, chatSession, (data : any) => {
-  //     console.log("FOOING THE BAR " + data);
-  //   });
-      
-  // }, [messages, chatSession]);
 
   const handleSendMessage = useCallback((content : string) => {
     if (!chatSession) return;
-    const newMessage: IMessage = {
-      content,
-      role: MessageRole.Human
-    };
+    
+    const newMessage: IMessage = { content, role: MessageRole.Human };
 
-    setMessages((messages) => [...messages, newMessage]);
-
+    if (ongoingResponse !== null && ongoingResponse.content !== "") {
+      setMessages((messages) => [...messages, ongoingResponse, newMessage]);
+    } else {
+      setMessages((messages) => [...messages, newMessage]);
+    }
+    
     setOngoingResponse({
       content: "", // Initially empty content
       role: MessageRole.AI
     });
-
     sendMessage(newMessage, chatSession, (data : any) => {
-      console.log("FOOING THE BAR " + data);
-
       setOngoingResponse((prevResponse) => {
         if (prevResponse) {
           return {
             ...prevResponse,
-            content: prevResponse.content + " " + data, // Concatenate incoming text to the existing content
+            content: prevResponse.content + data, // Concatenate incoming text to the existing content
           };
         }
         return null;
       });
-      // setMessages((messages) => [...messages, newAIMessage]);
     });
+
+    setChatInput("");
       
   }, [chatSession]);
 
+  
 
   useEffect(() => {
     if (!chatSession) return;
-    // here we can set the chat session with messages incoming from server, 
-    // that are loaded when we switch chat session
+    // Clear previous messages
+    setMessages([{
+      content: DEFAULT_MESSAGE,
+      role: MessageRole.AI
+    }]);
+
   }, [chatSession]);
 
 
@@ -122,9 +105,8 @@ function ChatWindow() {
 
   
   return (
-    //direction="column" padding={5} height="100%" width="100%" backgroundColor="#2E2E2E" borderRadius="10px"
     <Flex className="container">
-      <VStack flex="1" width="100%" height="100%" overflowY="auto" spacing={4} >
+      <VStack flex="1" height="100%" overflowY="auto" spacing={4} >
         <Box flex="1" width="100%" overflowY="auto">
           {messages && messages.map((message, index) => <Message message={message} key={`message-${index}`}/>)}
           {ongoingResponse && <Message message={ongoingResponse} />}
@@ -135,7 +117,6 @@ function ChatWindow() {
           <Input placeholder="Enter your message here" mb={2} value={chatInput} onChange={handleTextChange}/>
           <Button colorScheme="blue" onClick={() => handleSendMessage(chatInput)}>Send</Button>
       </Flex>
-
     </Flex>
   );
 }

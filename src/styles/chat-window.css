@@ -11,14 +11,18 @@
 }
 
 .input-bar {
-    display: flex;
+    /* position: absolute; */
+    display: block;
+    bottom: 0;
+    width: 100%;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #202020;
+    /* background-color: #202020; */
     border-radius: 10px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     overflow: hidden;
     padding: 20px;
     gap: 10px;
     color: whitesmoke;
+
 }

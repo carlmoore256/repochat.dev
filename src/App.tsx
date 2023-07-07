@@ -11,8 +11,7 @@ function App() {
       <Box width="300px">
         <Sidebar />
       </Box>
-
-      <Box flex="1" backgroundColor="#1A1A1A">
+      <Box flex="1">
         <VStack divider={<Divider orientation="horizontal" />} h="100%" padding="5px">
           <Box flex="1" minHeight="100px">
             <CodeReference />
@@ -26,4 +25,5 @@ function App() {
   );
 }
 
+  {/*  backgroundColor="#1A1A1A" */}
 export default App;

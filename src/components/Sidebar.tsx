@@ -2,8 +2,8 @@ import { useContext, useState, useEffect, forwardRef } from "react";
 import { VStack, Heading, Box, Divider, Button, Input, FormControl, FormLabel } from "@chakra-ui/react";
 import { RepoGrid } from "./RepoGrid";
 import { ChatSessionContext, SetChatSessionContext } from "../context/ChatSessionContext";
-import { newSession } from "../services/repochat";
-import { IRepositoryInfo } from "../services/github";
+import { newSession } from "../services/repochatAPI";
+import { IRepositoryInfo } from "../services/githubAPI";
 import "../styles/sidebar.css";
 
 function Sidebar() {
@@ -19,12 +19,12 @@ function Sidebar() {
     };
 
     return (
-        <VStack align="start" padding={5} className="bar">
+        <VStack align="start" padding={5} className="bar" backgroundColor={"#303030"}>
             <Box className="logo">
-                <Heading size="lg">repochat.dev</Heading>
+                <Heading color="black" fontWeight={400}>repochat.dev</Heading>
             </Box>
             <Divider orientation="horizontal" />
-            <RepoGrid onRepositorySelected={(repository : IRepositoryInfo) => {
+            <RepoGrid onRepositorySelect={(repository : IRepositoryInfo) => {
                 handleNewRepoSelected(repository);
             }}/>
         </VStack>
